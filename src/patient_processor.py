@@ -4,16 +4,21 @@ import os
 
 
 class PatientProcessor:
-    def __init__(self, file_path, output_dir="../output", chunk_size=1000000):
+    def __init__(self, file_path, output_dir="output", chunk_size=1000000):
         self.file_path = file_path
         self.chunk_size = chunk_size  # For processing large files
         self.output_dir = output_dir
+
+        # Ensure output directory exists
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
+
+        # Initialize data attributes
         self.data = None
         self.country_data = {}
 
     def process_data(self, current_date=None, days=30):
+        # Set current date
         if current_date is None:
             current_date = datetime.now().strftime("%Y%m%d")
 
@@ -39,7 +44,7 @@ class PatientProcessor:
         dtypes = {
             "Record_Type": "category",
             "Customer_Name": "string",
-            "Customer_Id": "int64",
+            "Customer_Id": "Int64",
             "Open_Date": "string",
             "Last_Consulted_Date": "string",
             "Vaccination_Id": "string",
@@ -80,6 +85,13 @@ class PatientProcessor:
                 chunk["DOB"], format="%d%m%Y", errors="coerce"
             )
 
+            # Check if DOB conversion was successful
+            if chunk["DOB"].isna().any():
+                print(
+                    "Warning: Some DOB values could not be converted. They will be dropped."
+                )
+                chunk = chunk.dropna(subset=["DOB"])
+
             # Calculate Age
             chunk["Age"] = current_date.year - chunk["DOB"].dt.year
 
@@ -87,9 +99,6 @@ class PatientProcessor:
             chunk["Days_Since_Last_Consulted"] = (
                 current_date - chunk["Last_Consulted_Date"]
             ).dt.days
-
-            # Filter records where Days_Since_Last_Consulted > 30
-            chunk = chunk[chunk["Days_Since_Last_Consulted"] > days]
 
             # Append to the list of processed chunks
             processed_chunks.append(chunk)
@@ -108,19 +117,32 @@ class PatientProcessor:
         )
         self.data.drop_duplicates(subset="Customer_Id", keep="first", inplace=True)
 
-        # Print columns for debugging
-        print(
-            "Columns in processor.data before splitting by country:", self.data.columns
-        )
+        # Save the final cleaned data to a single CSV file
+        self.save_cleaned_data()
 
-        # Split data by country and output to CSV files
-        self.split_by_country_and_save()
+        # Filter data with Days_Since_Last_Consulted > 30
+        self.data = self.data[self.data["Days_Since_Last_Consulted"] > days]
 
-    def split_by_country_and_save(self):
+        # Save country-wise CSV outputs
+        self.save_country_wise_data()
+
+        # Generate and store country-wise create table queries
+        self.generate_and_save_queries()
+
+    def save_cleaned_data(self):
+        # Create 'raw data' directory inside the output directory
+        raw_data_dir = os.path.join(self.output_dir, "raw data")
+        if not os.path.exists(raw_data_dir):
+            os.makedirs(raw_data_dir)
+
+        # Save the cleaned data with all columns in 'raw data' folder
+        filename = os.path.join(raw_data_dir, "cleaned_patient_data.csv")
+        self.data.to_csv(filename, index=False)
+        print(f"Cleaned data saved to '{filename}' with all original columns.")
+
+    def save_country_wise_data(self):
         grouped = self.data.groupby("Country")
         for country, group in grouped:
-            self.country_data[country] = group.copy()
-
             # Select only the required columns and rename them
             output_group = group[
                 [
@@ -154,4 +176,48 @@ class PatientProcessor:
                 f"Data for country '{country}' saved to '{filename}' with specified columns."
             )
 
+    def generate_and_save_queries(self):
+        unique_countries = self.data["Country"].unique()
+        sql_queries_dir = os.path.join(self.output_dir, 'sql_queries')
+        if not os.path.exists(sql_queries_dir):
+            os.makedirs(sql_queries_dir)
 
+
+        for country in unique_countries:
+            table_name = f"Table_{country}"
+            query = f"""
+            -- Create table for {country}
+            CREATE OR REPLACE TABLE {table_name} (
+                Unique_ID INT PRIMARY KEY,
+                Patient_Name VARCHAR(255),
+                Vaccine_Type CHAR(5),
+                Date_of_Birth DATE,
+                Date_of_Vaccination DATE,
+                Age INT,
+                Days_Since_Last_Consulted INT
+            );
+
+            -- Insert filtered data into the table
+            INSERT INTO {table_name} (
+                Unique_ID, Patient_Name, Vaccine_Type, Date_of_Birth, Date_of_Vaccination, Age, Days_Since_Last_Consulted
+            )
+            SELECT 
+                ROW_NUMBER() OVER (ORDER BY Customer_Id) AS Unique_ID,
+                Customer_Name AS Patient_Name,
+                Vaccination_Id AS Vaccine_Type,
+                DOB AS Date_of_Birth,
+                Last_Consulted_Date AS Date_of_Vaccination,
+                EXTRACT(YEAR FROM CURRENT_DATE) - EXTRACT(YEAR FROM TO_DATE(DOB, 'DDMMYYYY')) AS Age,
+                DATEDIFF(DAY, TO_DATE(Last_Consulted_Date, 'YYYYMMDD'), CURRENT_DATE) AS Days_Since_Last_Consulted
+            FROM 
+                staging_table
+            WHERE 
+                Country = '{country}'
+                AND DATEDIFF(DAY, TO_DATE(Last_Consulted_Date, 'YYYYMMDD'), CURRENT_DATE) > 30;
+            """
+
+            filename = os.path.join(sql_queries_dir, f"{table_name}_create_insert.sql")
+            with open(filename, 'w') as f:
+                f.write(query)
+
+            print(f"Create and insert query for '{table_name}' saved to '{filename}'.")
