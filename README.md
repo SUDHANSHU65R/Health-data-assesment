@@ -78,7 +78,7 @@ Each country-specific output file (`Table_{country}.csv`) will contain the follo
 5. **Country wise data and query:**
   - Country wise data has been saved in `output` directory after applying filters for `Last_Consulted_Date > 30`
   - Queries for creating tables and inserting data from staging table has been generated dynamically and stored in `output/sql_query` directory.
-  - **if we are considering snowflake to store data then we dont need countery wise csv data since queries will create tables and fetch data from snowflake tables.**
+  - **if we are considering snowflake to store data then we dont need countery wise csv data since queries will create tables and fetch data from snowflake staged table.**
   - **Country wise csv data has been provided only for demonstration purpose.**
 
 ## Test Cases
