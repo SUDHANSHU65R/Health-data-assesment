@@ -66,6 +66,7 @@ Each country-specific output file (`Table_{country}.csv`) will contain the follo
 2. **Data Transformation:**
    - Records are filtered and transformed to calculate age and days since the last consultation.
    - Records with null values in mandatory fields are dropped.
+   - After processing raw data is stored in `output/raw data` directory for staging purposes.
 
 3. **Data Filtering:**
    - Records where `Days_Since_Last_Consulted` > 30 are kept.
@@ -74,9 +75,21 @@ Each country-specific output file (`Table_{country}.csv`) will contain the follo
    - Data is split into country-specific groups.
    - Each group is saved as a CSV file with monotonically increasing `Unique_ID`.
 
+5. **Country wise data and query:**
+  - Country wise data has been saved in `output` directory after applying filters for `Last_Consulted_Date > 30`
+  - Queries for creating tables and inserting data from staging table has been generated dynamically and stored in `output/sql_query` directory.
 
 ## Test Cases
 Pytest test cases are provided to validate the functionality of the data processor. Run the tests using:
 
 ```pytest -v tests/test_patient_processor.py```
+
+## Conclusion
+The Hospital Patient Data Processor is a robust and scalable tool designed to manage large volumes of patient data efficiently, ensuring data integrity. Feel free to explore and enhance the tool to suit specific needs.
+
+
+## Contact
+For any questions or suggestions, feel free to reach out to the project maintainer or @`sudhansu65r@gmail.com`
+
+
 
