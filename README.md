@@ -91,7 +91,7 @@ We can consider pyspark for distributed computation in cloud environment like EM
 Raw Data file can be stored in S3 bucket and later processd to snowflake usng `Copy into` Command in staging table and later we can run the generated queries to create table and insert data into it.
 
 ## Conclusion
-The Hospital Patient Data Processor is a robust and scalable tool designed to manage large volumes of patient data efficiently, ensuring data integrity. Feel free to explore and enhance the tool to suit specific needs.
+The Hospital Patient Data Processor is a robust and scalable tool designed to manage large volumes of patient data efficiently, ensuring data integrity. Feel free to ask enhancement to the current configuration.
 
 
 ## Contact
