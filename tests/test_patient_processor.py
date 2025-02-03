@@ -39,5 +39,17 @@ def test_process_data():
        'Age', 'Days_Since_Last_Consulted'
         ])
 
-
+def test_output_files():
+    processor = PatientProcessor('../data/patient_data.txt', output_dir='../output')
+    processor.process_data(current_date='20231010')
+    output_files = os.listdir('../output')
+    expected_files = [f"Table_{country}.csv" for country in processor.country_data.keys()]
+    for expected_file in expected_files:
+        assert expected_file in output_files
+        # Load the output CSV and check columns
+        df = pd.read_csv(os.path.join('../output', expected_file))
+        expected_columns = ['Unique_ID', 'Patient Name', 'Vaccine Type', 'Date of Birth', 'Date of Vaccination', 'Age', 'Days_Since_Last_Consulted']
+        assert list(df.columns) == expected_columns
+        # Check for monotonically increasing Unique_ID
+        assert all(df['Unique_ID'] == range(1, len(df) + 1))
 
