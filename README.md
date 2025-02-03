@@ -78,6 +78,8 @@ Each country-specific output file (`Table_{country}.csv`) will contain the follo
 5. **Country wise data and query:**
   - Country wise data has been saved in `output` directory after applying filters for `Last_Consulted_Date > 30`
   - Queries for creating tables and inserting data from staging table has been generated dynamically and stored in `output/sql_query` directory.
+  - **if we are considering snowflake to store data then we dont need countery wise csv data since queries will create tables and fetch data from snowflake tables.**
+  - **Country wise csv data has been provided only for demonstration purpose.**
 
 ## Test Cases
 Pytest test cases are provided to validate the functionality of the data processor. Run the tests using:
@@ -86,7 +88,7 @@ Pytest test cases are provided to validate the functionality of the data process
 
 ## Consideration
 We can consider pyspark for distributed computation in cloud environment like EMR, Glue. 
-Data files can be stored in S3 bucket and later processd to snowflake usng `Copy into` Command in staging table and later we can run the generated queries to create table and insert data into it.
+Raw Data file can be stored in S3 bucket and later processd to snowflake usng `Copy into` Command in staging table and later we can run the generated queries to create table and insert data into it.
 
 ## Conclusion
 The Hospital Patient Data Processor is a robust and scalable tool designed to manage large volumes of patient data efficiently, ensuring data integrity. Feel free to explore and enhance the tool to suit specific needs.
