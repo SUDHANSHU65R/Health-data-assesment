@@ -11,13 +11,16 @@ The Hospital Patient Data Processor is a Python-based ETL (Extract, Transform, L
 - **SQL Queries:** Generates SQL queries for creating tables for each country-specific dataset.
 
 ## Project Structure
-hospital_assessment/  
+Health-data-assesment/  
 ├── data/  
 │   └── patient_data.txt  
 ├── output/  
 │   └── [Generated CSV Files]  
+│   └── /raw data/cleaned patient data.csv
+│   └── /sql_queries/cleaned patient data.csv
 ├── src/  
 │   └── patient_processor.py  
+│   └── main.py  
 ├── tests/  
 │   └── test_patient_processor.py  
 └── README.md  
@@ -55,4 +58,25 @@ Each country-specific output file (`Table_{country}.csv`) will contain the follo
 - **Date of Vaccination**: Date of the last consultation
 -**Age**: Age of the customer
 -**Days_Since_Last_Consulted**: No of days since last consulattion
+
+## Process Flow
+1. **Reading Data:**
+   - The data is read from the input file in chunks to handle large datasets efficiently.
+
+2. **Data Transformation:**
+   - Records are filtered and transformed to calculate age and days since the last consultation.
+   - Records with null values in mandatory fields are dropped.
+
+3. **Data Filtering:**
+   - Records where `Days_Since_Last_Consulted` > 30 are kept.
+
+4. **Splitting Data:**
+   - Data is split into country-specific groups.
+   - Each group is saved as a CSV file with monotonically increasing `Unique_ID`.
+
+
+## Test Cases
+Pytest test cases are provided to validate the functionality of the data processor. Run the tests using:
+
+```pytest -v tests/test_patient_processor.py```
 
