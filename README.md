@@ -95,7 +95,7 @@ The Hospital Patient Data Processor is a robust and scalable tool designed to ma
 
 
 ## Contact
-For any questions or suggestions, feel free to reach out to the project maintainer or @`sudhansu65r@gmail.com`
+For any questions or suggestions, feel free to reach out @`sudhansu65r@gmail.com`
 
 
 
