@@ -16,8 +16,8 @@ Health-data-assesment/
 │   └── patient_data.txt  
 ├── output/  
 │   └── [Generated CSV Files]  
-│   └── /raw data/cleaned patient data.csv
-│   └── /sql_queries/cleaned patient data.csv
+│   └── /raw data/cleaned patient data.csv  
+│   └── /sql_queries/cleaned patient data.csv  
 ├── src/  
 │   └── patient_processor.py  
 │   └── main.py  
