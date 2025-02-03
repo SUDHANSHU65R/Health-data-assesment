@@ -84,6 +84,10 @@ Pytest test cases are provided to validate the functionality of the data process
 
 ```pytest -v tests/test_patient_processor.py```
 
+## Consideration
+We can consider pyspark for distributed computation in cloud environment like EMR, Glue. 
+Data files can be stored in S3 bucket and later processd to snowflake usng `Copy into` Command in staging table and later we can run the generated queries to create table and insert data into it.
+
 ## Conclusion
 The Hospital Patient Data Processor is a robust and scalable tool designed to manage large volumes of patient data efficiently, ensuring data integrity. Feel free to explore and enhance the tool to suit specific needs.
 
